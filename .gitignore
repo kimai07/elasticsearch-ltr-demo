@@ -1,3 +1,7 @@
+app/demo/data/index
+app/demo/data/model
+app/demo/data/judgment/sample_judgments_wfeatures.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
