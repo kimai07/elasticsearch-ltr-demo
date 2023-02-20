@@ -1,0 +1,69 @@
+@startuml es-sequence
+
+hide footbox
+skinparam monochrome false
+
+autonumber
+
+Actor developer
+participant demo
+database es
+
+developer -> demo ++ :
+
+=== インデックス作成・データ投入 ==
+
+demo -> es ++ : DELETE /tmdb
+return
+
+demo -> es ++ : PUT /tmdb
+return
+
+demo -> es ++ : PUT /tmdb/_bulk
+return
+
+=== モデル学習 ==
+
+demo -> es ++ : DELETE /_ltr
+return
+
+demo -> es ++ : PUT /_ltr
+return
+
+demo -> es ++ : POST /_ltr/_featureset/movie_features
+return
+
+loop 利用する判定データのクエリ数回
+demo -> es ++ : GET /tmdb/_search
+return
+end
+
+loop 利用する学習アルゴリズム数回
+
+note right of demo
+java -jar lib/RankLibPlus-0.1.0.jar -ranker 0 ... 実行
+end note
+
+demo -> es ++ : POST _ltr/_featureset/movie_features/_createmodel
+return
+end
+
+=== 検索 ==
+
+note right of demo
+search with learning-to-rank
+end note
+
+demo -> es ++ : GET /tmdb/_search
+return
+
+note right of demo
+search without learning-to-rank
+end note
+
+demo -> es ++ : GET /tmdb/_search
+return
+
+return
+
+@enduml
