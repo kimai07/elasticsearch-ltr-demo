@@ -29,7 +29,7 @@ logQueryTmpl = {
     "ext": {
         "ltr_log": {
             "log_specs": {
-                "name": "main",
+                "name": "log_entry1",
                 "named_query": "logged_featureset",
                 "missing_as_zero": True
             }
