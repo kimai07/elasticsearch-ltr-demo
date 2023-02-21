@@ -64,7 +64,7 @@ class FeatureExtractor:
             features_per_doc = {}
             for doc in resp['hits']['hits']:
                 docId = doc['_id']
-                features = doc['fields']['_ltrlog'][0]['main']
+                features = doc['fields']['_ltrlog'][0]['log_entry1']
                 features_per_doc[docId] = self.__feature_dict_to_list(features)
 
             # Append features from ES back to ranklib judgment list
