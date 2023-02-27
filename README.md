@@ -5,16 +5,23 @@
 # デモ概要
 
 titleとoverviewフィールドに対して検索した結果をElasticsearch LTRプラグインを用いてリランクします。
-そのためのモデル作成やElasticsearchへのモデルアップロードも行います。
+そのためのモデル作成やElasticsearchへのモデルのデプロイ（アップロード）も行います。
 
 このデモを進める前に公式ドキュメントを見ておくと理解がより進むと思います。
 
-* [コアコンセプト](https://github.com/o19s/elasticsearch-learning-to-rank/blob/main/docs/core-concepts.rst)
-* [Elasticsearch LTR基本機能](https://github.com/o19s/elasticsearch-learning-to-rank/blob/main/docs/building-features.rst)
-* [特徴量ロギング](https://github.com/o19s/elasticsearch-learning-to-rank/blob/main/docs/logging-features.rst)
-* [ranklibでの学習](https://github.com/o19s/elasticsearch-learning-to-rank/blob/main/docs/training-models.rst)
-* [検索](https://github.com/o19s/elasticsearch-learning-to-rank/blob/main/docs/searching-with-your-model.rst)
+* [Elasticsearch Learning to Rank: the documentation — Elasticsearch Learning to Rank documentation](https://elasticsearch-learning-to-rank.readthedocs.io/en/latest/)
 
+
+# 実行環境
+
+デモを動かすためには以下の環境が必要となります。
+
+* Java
+  * RankLibをPythonから外部コマンド実行するため
+* Python3.9
+  * デモコードがPythonで書かれており、それらのコードを実行するため
+* Poetry
+  * デモ実行例はPoetryを通して実行しているため
 
 # 事前準備：データとライブラリ
 
@@ -30,6 +37,7 @@ titleとoverviewフィールドに対して検索した結果をElasticsearch LT
 以下シェルスクリプトを実行することでダウンロード、配置することが出来ます。
 
 ```shell
+$ cd app
 $ bash prepare.sh
 ```
 
@@ -61,7 +69,7 @@ RUN bin/elasticsearch-plugin install -b https://github.com/o19s/elasticsearch-le
 以下コマンドを実行して、このプロジェクト用の仮想環境のセットアップを行います。
 
 ```shell
-$ cd es-ltr-demo/app
+$ cd app
 $ poetry install
 ```
 
@@ -82,7 +90,7 @@ $ export APP_DIR_BASE=../../..
 それぞれの実行で行われる処理は以下となります。
 
 * インデックス作成・データ投入
-* モデル学習
+* モデル学習とデプロイ
 * 検索
 
 この中の「モデル学習」ではElasticsearch LTR用の操作など複数の操作を行っています。ここに関しては、後ほど細かくstepに分けて説明したいと思います。
@@ -94,7 +102,7 @@ $ export APP_DIR_BASE=../../..
 run.shを実行してデモを実行します。
 
 ```shell
-$ cd es-ltr-demo/app
+$ cd app
 $ poetry run bash run.sh
 ```
 
@@ -103,7 +111,7 @@ $ poetry run bash run.sh
 これらのPythonスクリプトはrun.shで実行されているファイル群となります。
 
 ```shell
-$ cd es-ltr-demo/app/demo
+$ cd app/demo
 $ poetry run python index_tmdb.py
 $ poetry run python train.py
 $ poetry run python check_search_results.py --keyword Rocky
@@ -131,13 +139,13 @@ $ poetry run python index_tmdb.py
 これにより、Elasticsearchにtmdbインデックスが作成されデータが入った状態となります。
 
 
-## 2. モデル学習
+## 2. モデル学習とデプロイ
 
 続いて、モデル学習で行っている以下の内容について説明します。
 
 1. 特徴量セットのセットアップ
 2. 判定データへの特徴量付加
-3. 学習モデルの作成とアップロード
+3. 学習モデルの作成とデプロイ
 
 実行コマンドは以下となります。
 
@@ -220,7 +228,7 @@ POST /_ltr/_featureset/movie_features
 }
 ```
 
-### 2.2 判定データ（評価データ、正解データ）への特徴量付加
+### 2.2 判定データへの特徴量付加
 
 次に判定データを読み込んで、判定データに対して特徴量を付加します。
 
@@ -377,7 +385,7 @@ POST /tmdb/_search
 * `./data/judgment/sample_judgments_wfeatures.txt` に [ranklib_format](https://sourceforge.net/p/lemur/wiki/RankLib%20File%20Format/) の形式で書き出す
 * ここでは10ドキュメントの特徴量しか利用していないですが、多い方が精度は高くなる傾向にある
 
-```bash
+```shell
 4	qid:1	1:12.318474	2:10.573917 # 7555	rambo
 3	qid:1	1:10.357876	2:11.95039 # 1370	rambo
 3	qid:1	1:7.0105133	2:11.220095 # 1369	rambo
@@ -392,7 +400,7 @@ POST /tmdb/_search
 ・・・
 ```
 
-## 2.3 学習モデルの作成とアップロード
+## 2.3 学習モデルの作成とデプロイ
 
 ##### 2.3.1 ランキング学習ライブラリranklibでモデル学習を行う
 * Pythonから外部コマンドで以下Javaコマンドを実行してモデルを作成する
@@ -489,7 +497,7 @@ $ java -jar lib/RankLibPlus-0.1.0.jar -ranker 6 -train ./data/judgment/sample_ju
 </ensemble>
 ```
 
-##### 2.3.2 Elasticsearchに学習モデルをアップロードする
+##### 2.3.2 Elasticsearchに学習モデルをデプロイする
 
 * リクエストボディにmodel_payloadを指定して `POST _ltr/_featureset/movie_features/_createmodel` リクエストを行いモデルをアップロード
 * model_payloadにはmodel.txtの内容などをセット
