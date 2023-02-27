@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "es-ltr-demo"
+name = "elasticsearch-ltr-demo"
 version = "0.1.0"
 description = "demo for elasticsearch learning-to-rank"
 authors = ["kenji imai <imakenfever@gmail.com>"]

@@ -19,7 +19,7 @@ cd demo
 ## download data & ranklib
 cp -rp ${APP_DIR_BASE}/app/demo/* .
 
-## setup es-ltr
+## setup elasticsearch index
 python index_tmdb.py --es-host "http://${ES_HOST}:${ES_PORT}"
 
 sleep 5
