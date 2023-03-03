@@ -6,7 +6,7 @@ authors = ["kenji imai <imakenfever@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-elasticsearch = "7.17.9"
+elasticsearch = "7.17.7"
 requests = "2.28.2"
 
 [tool.poetry.dev-dependencies]
